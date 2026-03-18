@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cozy Bean — Artisan Coffee House</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=Cormorant+Garamond:wght@300;400&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background:
+                linear-gradient(rgba(13, 7, 4, 0.52), rgba(13, 7, 4, 0.82)),
+                url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=2200&q=80') center/cover fixed no-repeat;
+            color: #f5e6c8;
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.6;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            position: sticky;
+            top: 0;
+            background: rgba(43, 24, 16, 0.48);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.28);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #e8a84c;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #d4b896;
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e8a84c;
+        }
+
+        .cart-indicator {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(232, 168, 76, 0.55);
+            color: #e8a84c;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cart-indicator:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #e8a84c;
+        }
+
+        .cart-count {
+            background: #e8a84c;
+            color: #1a0e08;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .cart-panel {
+            position: fixed;
+            top: 5.5rem;
+            right: 5%;
+            width: min(360px, 90vw);
+            background: rgba(31, 17, 10, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 28px;
+            padding: 1.4rem;
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            z-index: 200;
+            display: none;
+        }
+
+        .cart-panel.open {
+            display: block;
+        }
+
+        .cart-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cart-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #f5e6c8;
+        }
+
+        .cart-close {
+            background: transparent;
+            border: 1px solid rgba(232, 168, 76, 0.55);
+            color: #e8a84c;
+            border-radius: 999px;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cart-items {
+            list-style: none;
+            display: grid;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .cart-item strong {
+            display: block;
+            font-size: 1rem;
+        }
+
+        .cart-item span {
+            color: #d4b896;
+            font-size: 0.95rem;
+        }
+
+        .cart-remove {
+            background: transparent;
+            border: 1px solid rgba(232, 168, 76, 0.6);
+            color: #e8a84c;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-family: 'Cormorant Garamond', serif;
+            white-space: nowrap;
+        }
+
+        .cart-empty {
+            color: #d4b896;
+            font-size: 1rem;
+        }
+
+        .hero {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 10vw, 5rem);
+            margin-top: 1rem;
+        }
+
+        .hero-panel {
+            max-width: min(90%, 760px);
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-description {
+            margin-top: 1.5rem;
+            font-size: 1.3rem;
+            color: #d4b896;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero em {
+            color: #e8a84c;
+            font-style: italic;
+        }
+
+        section {
+            padding: 6rem 10%;
+        }
+
+        .section-shell {
+            background: rgba(40, 22, 14, 0.24);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 34px;
+            padding: 2.25rem;
+            width: min(100%, 1200px);
+            margin: 0 auto;
+            backdrop-filter: blur(18px) saturate(135%);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 55px rgba(0, 0, 0, 0.22);
+        }
+
+        .split-shell {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .order-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .step-card h4 {
+            color: #e8a84c;
+            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .gallery-section {
+            padding-top: 0;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-card {
+            position: relative;
+            min-height: 250px;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 22px 44px rgba(0, 0, 0, 0.22);
+        }
+
+        .gallery-card.large {
+            grid-row: span 2;
+            min-height: 520px;
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(8, 4, 2, 0.06), rgba(8, 4, 2, 0.72));
+        }
+
+        .gallery-copy {
+            position: absolute;
+            left: 1.4rem;
+            right: 1.4rem;
+            bottom: 1.4rem;
+            z-index: 1;
+            text-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+        }
+
+        .gallery-copy h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .gallery-copy p {
+            color: #f4e7d2;
+            font-size: 1rem;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .label {
+            color: #e8a84c;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .menu-item {
+            background: rgba(48, 28, 18, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 1.5rem;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(18px) saturate(135%);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 45px rgba(0, 0, 0, 0.22);
+            border-radius: 26px;
+            overflow: hidden;
+        }
+
+        .menu-item img {
+            width: calc(100% + 3rem);
+            height: 220px;
+            object-fit: cover;
+            margin: -1.5rem -1.5rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .menu-item:hover {
+            border-color: #c87941;
+            transform: translateY(-5px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 28px 55px rgba(0, 0, 0, 0.28);
+        }
+
+        .menu-item h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .price {
+            color: #e8a84c;
+            font-weight: bold;
+            display: block;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-to-cart {
+            background: transparent;
+            border: 1px solid #e8a84c;
+            color: #e8a84c;
+            padding: 0.8rem;
+            cursor: pointer;
+            font-family: 'Cormorant Garamond', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .add-to-cart:hover {
+            background: #e8a84c;
+            color: #1a0e08;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            padding: 4rem 10%;
+        }
+
+        .info-block {
+            background: rgba(48, 28, 18, 0.3);
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 26px;
+            backdrop-filter: blur(18px) saturate(135%);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 45px rgba(0, 0, 0, 0.22);
+        }
+
+        .info-block h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #e8a84c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(36, 18, 11, 0.35);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 0.9rem;
+            color: #d4b896;
+            opacity: 0.7;
+            backdrop-filter: blur(18px) saturate(135%);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            .section-shell {
+                padding: 1.5rem;
+                border-radius: 26px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            section {
+                padding: 4rem 5%;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-card.large {
+                grid-row: auto;
+                min-height: 320px;
+            }
+
+            .cart-panel {
+                right: 50%;
+                transform: translateX(50%);
+                top: 5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="#" class="logo">The Cozy Bean</a>
+        <div class="nav-right">
+            <div class="nav-links">
+                <a href="#how-to-order">Order</a>
+                <a href="#photos">Photos</a>
+                <a href="#menu">Menu</a>
+                <a href="#visit">Visit</a>
+            </div>
+            <div class="cart-indicator" onclick="openCart()">
+                Cart <span class="cart-count" id="cart-count">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="cart-panel" id="cart-panel">
+        <div class="cart-panel-header">
+            <h3>Your Cart</h3>
+            <button class="cart-close" onclick="closeCart()" aria-label="Close cart">X</button>
+        </div>
+        <ul class="cart-items" id="cart-items"></ul>
+        <p class="cart-empty" id="cart-empty">Your cart is empty.</p>
+    </aside>
+
+    <header class="hero">
+        <div class="hero-panel">
+            <span class="label">Est. 2018</span>
+            <h1>Where Coffee<br><em>Becomes</em> Art</h1>
+            <p class="hero-description">
+                Step into a sanctuary of craft and aroma. From hand-pressed espressos to buttery, slow-baked pastries,
+                we serve the finest artisanal blends in the heart of Hyderabad.
+            </p>
+        </div>
+    </header>
+
+    <section id="how-to-order">
+        <div class="section-shell">
+            <span class="label">Quick Pickup</span>
+            <h2>Enjoy Coffee Your Way</h2>
+            <p>Our online ordering system is designed for your busy schedule. Follow these simple steps to secure your favorites:</p>
+
+            <div class="order-steps">
+                <div class="step-card">
+                    <h4>1. Explore</h4>
+                    <p>Browse our curated menu of house blends and fresh-baked treats below.</p>
+                </div>
+                <div class="step-card">
+                    <h4>2. Select</h4>
+                    <p>Add your preferred items to the cart and review your order details.</p>
+                </div>
+                <div class="step-card">
+                    <h4>3. Confirm</h4>
+                    <p>Complete your selection. Our baristas will get to work immediately.</p>
+                </div>
+                <div class="step-card">
+                    <h4>4. Pickup</h4>
+                    <p>Swing by our Jubilee Hills cafe to collect your fresh, warm order!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="photos" class="gallery-section">
+        <div class="section-shell">
+            <span class="label">Cafe Moments</span>
+            <h2>A Glimpse Inside</h2>
+
+            <div class="gallery-grid">
+                <article class="gallery-card large">
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1600&q=80"
+                        alt="Warm cafe interior with people enjoying coffee">
+                    <div class="gallery-copy">
+                        <h3>Warm Corners</h3>
+                        <p>Golden light, wooden tables, and the kind of quiet that makes every cup taste slower.</p>
+                    </div>
+                </article>
+
+                <article class="gallery-card">
+                    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80"
+                        alt="Cafe counter and barista workspace">
+                    <div class="gallery-copy">
+                        <h3>Behind The Bar</h3>
+                        <p>Fresh pours, soft steam, and the rhythm of the morning rush.</p>
+                    </div>
+                </article>
+
+                <article class="gallery-card">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+                        alt="Fresh espresso served in a cafe">
+                    <div class="gallery-copy">
+                        <h3>Signature Pour</h3>
+                        <p>Rich crema and deep roast notes, served exactly the way a cozy cafe should.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu">
+        <div class="section-shell">
+            <span class="label">House Favorites</span>
+            <h2>The Menu</h2>
+
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=900&q=80"
+                        alt="Espresso in a dark ceramic cup">
+                    <h3>Espresso Noir</h3>
+                    <p>Bold, rich, and complex with dark chocolate notes.</p>
+                    <span class="price">&#8377; 180</span>
+                    <button class="add-to-cart" onclick="addToCart('Espresso Noir', 180)">Add to Cart</button>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=900&q=80"
+                        alt="Creamy latte with smooth microfoam">
+                    <h3>Velvet Latte</h3>
+                    <p>Silky microfoam over our house medium roast.</p>
+                    <span class="price">&#8377; 260</span>
+                    <button class="add-to-cart" onclick="addToCart('Velvet Latte', 260)">Add to Cart</button>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=80"
+                        alt="Fresh butter croissant on a plate">
+                    <h3>Butter Croissant</h3>
+                    <p>81 golden layers of pure, buttery indulgence.</p>
+                    <span class="price">&#8377; 190</span>
+                    <button class="add-to-cart" onclick="addToCart('Butter Croissant', 190)">Add to Cart</button>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+                        alt="Classic cappuccino with latte art">
+                    <h3>Classic Cappuccino</h3>
+                    <p>Equal parts espresso, steamed milk, and airy foam.</p>
+                    <span class="price">&#8377; 220</span>
+                    <button class="add-to-cart" onclick="addToCart('Classic Cappuccino', 220)">Add to Cart</button>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1572286258217-40142c1c6a70?auto=format&fit=crop&w=900&q=80"
+                        alt="Refreshing glass of cold brew coffee">
+                    <h3>Signature Cold Brew</h3>
+                    <p>18-hour steep for a smooth, low-acid finish.</p>
+                    <span class="price">&#8377; 240</span>
+                    <button class="add-to-cart" onclick="addToCart('Signature Cold Brew', 240)">Add to Cart</button>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1517433367423-c7e5b0f35086?auto=format&fit=crop&w=900&q=80"
+                        alt="Lemon tart with glossy citrus topping">
+                    <h3>Lemon Curd Tart</h3>
+                    <p>Zesty citrus filling in a shortbread crust.</p>
+                    <span class="price">&#8377; 280</span>
+                    <button class="add-to-cart" onclick="addToCart('Lemon Curd Tart', 280)">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="visit" class="info-grid">
+        <div class="section-shell split-shell">
+            <div class="info-block">
+                <h3>Hours</h3>
+                <p>Mon - Fri: 7am — 10pm</p>
+                <p>Sat - Sun: 8am — 11pm</p>
+            </div>
+
+            <div class="info-block">
+                <h3>Location</h3>
+                <p>12, Jubilee Hills Road No. 36</p>
+                <p>Hyderabad, Telangana 500033</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 The Cozy Bean Coffee House</p>
+    </footer>
+
+    <script>
+        const cartItems = [];
+
+        function addToCart(name, price) {
+            cartItems.push({ name, price });
+            updateCartCount();
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cartItems.splice(index, 1);
+            updateCartCount();
+            renderCart();
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').innerText = cartItems.length;
+        }
+
+        function openCart() {
+            document.getElementById('cart-panel').classList.add('open');
+            renderCart();
+        }
+
+        function closeCart() {
+            document.getElementById('cart-panel').classList.remove('open');
+        }
+
+        function renderCart() {
+            const cartList = document.getElementById('cart-items');
+            const emptyState = document.getElementById('cart-empty');
+
+            cartList.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            cartItems.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'cart-item';
+                listItem.innerHTML = `
+                    <div>
+                        <strong>${item.name}</strong>
+                        <span>Rs. ${item.price}</span>
+                    </div>
+                    <button class="cart-remove" onclick="removeFromCart(${index})">Remove</button>
+                `;
+                cartList.appendChild(listItem);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
